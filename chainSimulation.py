@@ -100,7 +100,7 @@ for i in range(nSteps):
         betaText  = ''
         if ramps:
             betaText = ', beta=%.2f'%beta_
-        remaining = float(nSteps-i_)*((t-t0)%60)/i_
+        remaining = float(nSteps-i_)*((t-t0))/i_
         timeString = {True:'%.1fs'%remaining, False:'%.0fmin'%(remaining//60,)}[remaining<300]
         print '   step %d/%d: %.1fs, %s remaining'%(i_, nSteps, t-t0, timeString) + betaText
         chains.dump(append=True)
