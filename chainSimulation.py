@@ -53,7 +53,12 @@ t0 = time.time()
 initialConf = {False: None, True: outputFile+'.pdb'}[append]
 chains = Chains.Chains(number=number, length=length, box=box, maxAngle=maxAngle, beta=beta, surface=surface, outFile=outputFile+'.pdb', initialConf=initialConf)
 
-# set up the output file
+# set up the output
+fp = open('commandLine', 'w')
+for s in sys.argv:
+    fp.write(s + ' ')
+fp.write('\n')
+fp.close()
 if not append:
     try: os.remove(outputFile + '.pdb')
     except: pass
