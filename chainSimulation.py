@@ -18,6 +18,21 @@ outputFreq = 10
 nSteps = 1000
 
 # parse arguments
+if '-help' in sys.argv:
+    b = '\n                        '
+    print "\nUsage:\n"
+    print "chainSimulation.py"
+    print "   -surface:         if present, simulates the chains grafted on a hard but" + b + "inert surface (default no)"
+    print "   -number <n>:      simulates a collection of <n> chains (default 1)"
+    print "   -length <n>:      makes coils of <n> beads, with contour lengths <n>-1" + b + "(default 50)"
+    print "   -box <d>:         grafts the chains on a square of side length <d>" + b + "(default 10)"
+    print "   -maxAngle <a>:    the maximum bend angle at each bead in degrees where" + b + "<a>=0.0 is a straight rod (default 90.0)"
+    print "   -beta <b>:        the effective bond strength <b> = energy / (kT), where" + b + "the well width is 0.2 (default 0.0)"
+    print "   -outputFile <s>:  the base name of the outputfile (default: 'out')"
+    print "   -outputFreq <n>:  produces output every <n> simulation steps (default: 10)"
+    print "   -steps <n>:       runs a simulation of <n> steps, including steps where the" + b + "change is rejected (default 1000)"
+    print ""
+    exit()
 surface = '-surface' in sys.argv
 def parse(argv, key, default):
     if key in argv:
