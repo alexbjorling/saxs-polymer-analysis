@@ -102,7 +102,8 @@ for i in range(nSteps):
 
 # fix a nice vmd file for this simulation
 fout = open(outputFile + '.vmd', 'w')
-fin = open('base.vmd', 'r')
+
+fin = open(os.path.dirname(os.path.realpath(__file__)) + '/base.vmd', 'r')
 for line in fin:
     fout.write(line.replace('_FILENAME_', outputFile + '.pdb'))
 if not surface:
