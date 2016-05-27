@@ -12,6 +12,7 @@ This code simulates a simple explicit polymer model with various energy terms. T
 
 * Analysis code for evaluating properties like form factors, gyration radii, extensions, number of sticky bonds, etc, for finished runs.
 * Parallelize the damn thing.
+* Add a Monte Carlo routine for randomly placing chains densely on a surface.
 
 ### Documentation ###
 
