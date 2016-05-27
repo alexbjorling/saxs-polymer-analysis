@@ -110,7 +110,10 @@ if not surface:
 fout.close()
 fin.close()
 
-print '\nSimulation done in %.1fs'%(t-t0) 
-print 'Trajectory written to %s.pdb.'%outputFile
+t = time.time()
+timeText = {True: '%.1fs'%(t-t0), False: '%.0fmin'%((t-t0)/60)}[t-t0 < 300]
+print '\nSimulation done in ' + timeText
+print 'Trajectory written to %s.pdb'%outputFile
 print 'Visualization state saved as %s.vmd, do "vmd -e %s.vmd" to look'%((outputFile,)*2)
-print 'Acceptance rate: %.1f%%'%(100*float(goodSteps)/nSteps)
+if nSteps > 0:
+    print 'Acceptance rate: %.1f%%'%(100*float(goodSteps)/nSteps)
