@@ -17,8 +17,8 @@ outputFile = 'out'
 outputFreq = 10
 nSteps = 1000
 
-# parse arguments
-if '-help' in sys.argv:
+# usage
+def usage():
     b = '\n                        '
     print "\nUsage:\n"
     print "chainSimulation.py"
@@ -33,6 +33,9 @@ if '-help' in sys.argv:
     print "   -steps <n>:       runs a simulation of <n> steps, including steps where the" + b + "change is rejected (default 1000)"
     print ""
     exit()
+
+# parse arguments
+if '-help' in sys.argv: usage()
 surface = '-surface' in sys.argv
 def parse(argv, key, default):
     if key in argv:
