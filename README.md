@@ -15,4 +15,5 @@ This code simulates a simple explicit polymer model with various energy terms. T
 
 ### Documentation ###
 
-The underlying model is described in detail in the NXUS report for Statens Serum Institut (www.nxus.dk).
+* Run "chainSimulation.py -help" for command-line usage.
+* The underlying model is described in detail in the NXUS report for Statens Serum Institut (www.nxus.dk).
