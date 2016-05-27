@@ -1,6 +1,6 @@
 # README #
 
-This code simulates a simple explicit polymer model with various energy terms. These polymers can be stiff and sticky, and be grafted onto a surface or isolated.
+This code simulates a simple explicit polymer model with various energy terms. These polymers can be stiff and sticky, and can be grafted onto a surface or isolated.
 
 ### Contents ###
 
