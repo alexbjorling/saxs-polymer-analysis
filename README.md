@@ -12,6 +12,7 @@ This code simulates a simple explicit polymer model with various energy terms. T
 
 * Analysis code for evaluating properties like form factors, gyration radii, extensions, number of sticky bonds, etc, for finished runs.
 * Simulated annealing for sampling the conformations of very sticky coils, which have rough energy landscapes.
+* The ability to continue simulations after they have finished.
 
 ### Documentation ###
 
