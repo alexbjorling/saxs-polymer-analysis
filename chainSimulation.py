@@ -7,16 +7,6 @@ import Chains
 import time
 import sys
 
-# default parameters
-number = 1
-length = 50
-box = 10
-maxAngle = 90.0
-beta = 0.0
-outputFile = 'out'
-outputFreq = 10
-nSteps = 1000
-
 # usage
 def usage():
     b = '\n                        '
@@ -28,6 +18,7 @@ def usage():
     print "   -box <d>:         grafts the chains on a square of side length <d>" + b + "(default 10)"
     print "   -maxAngle <a>:    the maximum bend angle at each bead in degrees where" + b + "<a>=0.0 is a straight rod (default 90.0)"
     print "   -beta <b>:        the effective bond strength <b> = energy / (kT), where" + b + "the well width is 0.2 (default 0.0)"
+    print "   -ramps <n>:       ramp up beta from 0 <n> times for simulated annealing, " + b + "where <n> = 0 gives constant beta as specified by" + b + "-beta. After each ramp, beta is held constant for the" + b + "equivalent of a ramp duration. (default 0)"
     print "   -outputFile <s>:  the base name of the outputfile (default: 'out')"
     print "   -outputFreq <n>:  produces output every <n> simulation steps (default: 10)"
     print "   -steps <n>:       runs a simulation of <n> steps, including steps where the" + b + "change is rejected (default 1000)"
@@ -44,14 +35,15 @@ def parse(argv, key, default):
         return argv[argv.index(key) + 1]
     else:
         return default
-number     = int(parse(sys.argv, '-number', number))
-length     = int(parse(sys.argv, '-length', length))
-box        = float(parse(sys.argv, '-box', box))
-maxAngle   = float(parse(sys.argv, '-maxAngle', maxAngle)) * np.pi / 180.0
-beta       = float(parse(sys.argv, '-beta', beta))
-outputFile = parse(sys.argv, '-outputFile', outputFile)
-outputFreq = int(parse(sys.argv, '-outputFreq', outputFreq))
-nSteps     = int(parse(sys.argv, '-steps', nSteps))
+number     = int(parse(sys.argv, '-number', 1))
+length     = int(parse(sys.argv, '-length', 50))
+box        = float(parse(sys.argv, '-box', 10))
+maxAngle   = float(parse(sys.argv, '-maxAngle', 90)) * np.pi / 180.0
+beta       = float(parse(sys.argv, '-beta', 0))
+ramps      = int(parse(sys.argv, '-ramps', 0))
+outputFile = parse(sys.argv, '-outputFile', 'out')
+outputFreq = int(parse(sys.argv, '-outputFreq', 10))
+nSteps     = int(parse(sys.argv, '-steps', 1000))
 if (number > 1) and not surface:
     print "Simulating more than one chain without a surface makes no sense!\n"
     exit()
@@ -74,10 +66,17 @@ for i in range(nSteps):
     chains.randomRotation(1)
     bonds = chains.check()
     deltaBonds = oldBonds - bonds
+    # Find time-dependent beta for simulated annealing:
+    if ramps == 0:
+        beta_ = chains.beta
+    else:
+        beta_ = chains.beta
+        if not (2 * i / (nSteps / (ramps))) % 2:
+            beta_ = chains.beta * (2 * i % (nSteps / ramps)) / (nSteps / ramps)
     # Metropolis condition:
     if np.isnan(bonds):
         keep = False
-    elif (deltaBonds <= 0) or (np.random.rand() < np.exp(-chains.beta*deltaBonds)):
+    elif (deltaBonds <= 0) or (np.random.rand() < np.exp(-beta_*deltaBonds)):
         keep = True
     else:
         keep = False
@@ -93,7 +92,12 @@ for i in range(nSteps):
     i_ = i + 1
     if (i_ % outputFreq == 0) or (i_ == nSteps):
         t = time.time()
-        print '   step %d/%d: %.1fs, %.1fs remaining'%(i_, nSteps, t-t0, float(nSteps-i_)*(t-t0)/i_)
+        betaText  = ''
+        if ramps:
+            betaText = ', beta=%.2f'%beta_
+        remaining = float(nSteps-i_)*((t-t0)%60)/i_
+        timeString = {True:'%.1fs'%remaining, False:'%.0fmin'%(remaining//60,)}[remaining<300]
+        print '   step %d/%d: %.1fs, %s remaining'%(i_, nSteps, t-t0, timeString) + betaText
         chains.dump(append=True)
 
 # fix a nice vmd file for this simulation
