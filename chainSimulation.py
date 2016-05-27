@@ -31,12 +31,14 @@ def usage():
     print "   -outputFile <s>:  the base name of the outputfile (default: 'out')"
     print "   -outputFreq <n>:  produces output every <n> simulation steps (default: 10)"
     print "   -steps <n>:       runs a simulation of <n> steps, including steps where the" + b + "change is rejected (default 1000)"
+    print "   -append:          if present, continues the existing simulation specified by" + b + "-outputFile, which must match the other settings" + b + "(default no)"
     print ""
     exit()
 
 # parse arguments
 if '-help' in sys.argv: usage()
 surface = '-surface' in sys.argv
+append = '-append' in sys.argv
 def parse(argv, key, default):
     if key in argv:
         return argv[argv.index(key) + 1]
@@ -56,12 +58,14 @@ if (number > 1) and not surface:
 
 # start the timer and initialize the Chains instance
 t0 = time.time()
-chains = Chains.Chains(number=number, length=length, box=box, maxAngle=maxAngle, beta=beta, surface=surface, outFile=outputFile+'.pdb')
+initialConf = {False: None, True: outputFile+'.pdb'}[append]
+chains = Chains.Chains(number=number, length=length, box=box, maxAngle=maxAngle, beta=beta, surface=surface, outFile=outputFile+'.pdb', initialConf=initialConf)
 
 # set up the output file
-try: os.remove(outputFile + '.pdb')
-except: pass
-chains.dump(append=True)
+if not append:
+    try: os.remove(outputFile + '.pdb')
+    except: pass
+    chains.dump(append=True)
 
 # do the simulation
 goodSteps, badSteps, oldBonds = 0, 0, 0

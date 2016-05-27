@@ -5,7 +5,7 @@ import copy
 import sys
 
 class Chains(object):
-    def __init__(self, number=0, length=0, box=0, maxAngle=np.pi/2, beta=0.0, surface=False, outFile='out.pdb'):
+    def __init__(self, number=0, length=0, box=0, maxAngle=np.pi/2, beta=0.0, surface=False, outFile='out.pdb', initialConf=None):
         # initiate a set of <number> chains of length <length>, spread randomly over a square surface of side <box>
         if number > 0:
             self.number = number
@@ -16,19 +16,42 @@ class Chains(object):
             self.surface = surface
             self.outFile = outFile
             bonds = np.nan
-            while np.isnan(bonds):
-                sys.stdout.write("Generating initial arrangement of chains... ")
+            # read the initial conformation from pdb
+            if initialConf:
+                print "Reading initial conformation from the last frame of " + initialConf + "."
+                # go to the first line of the last frame
+                fp = open(initialConf, 'r')
+                i = 0
+                for line in fp:
+                    i += 1
+                    if line.startswith('MODEL'):
+                        linesBefore = i
+                fp.seek(0)
+                for i in range(linesBefore):
+                    fp.readline()
                 self.coords = []
                 for i in range(number):
                     self.coords.append(np.ones((length, 3)))
-                    self.coords[-1][:,0] = np.random.rand() * box
-                    self.coords[-1][:,1] = np.random.rand() * box
-                    self.coords[-1][:,2] = np.arange(.5, length)
-                bonds = self.check()
-                if np.isnan(bonds):
-                    sys.stdout.write('failed. Trying again.\n')
-                else:
-                    sys.stdout.write('success!\n')
+                    for j in range(length):
+                        line = fp.readline()
+                        self.coords[-1][j,:] = np.array(map(float, [line[30:38], line[38:46], line[46:54]]))
+                    fp.readline() # TER
+                fp.close()
+            # make a random one
+            else:
+                while np.isnan(bonds):
+                    sys.stdout.write("Generating initial arrangement of chains... ")
+                    self.coords = []
+                    for i in range(number):
+                        self.coords.append(np.ones((length, 3)))
+                        self.coords[-1][:,0] = np.random.rand() * box
+                        self.coords[-1][:,1] = np.random.rand() * box
+                        self.coords[-1][:,2] = np.arange(.5, length)
+                    bonds = self.check()
+                    if np.isnan(bonds):
+                        sys.stdout.write('failed. Trying again.\n')
+                    else:
+                        sys.stdout.write('success!\n')
                 
     def randomRotation(self, number=1):
         for cycle in range(number):
