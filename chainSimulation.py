@@ -9,7 +9,6 @@ import time
 import sys
 
 
-# usage
 def usage():
     msg = (
         '\nUsage:\n\n'
@@ -39,7 +38,7 @@ def usage():
         '                    specified by -outputFile, which must match the\n'
         '                    other settings (default no)\n'
     )
-    print msg
+    print(msg)
     exit()
 
 
@@ -65,7 +64,7 @@ outputFile = parse(sys.argv, '-outputFile', 'out')
 outputFreq = int(parse(sys.argv, '-outputFreq', 10))
 nSteps = int(parse(sys.argv, '-steps', 1000))
 if (number > 1) and not surface:
-    print "Simulating more than one chain without a surface makes no sense!\n"
+    print("Simulating more than one chain without a surface makes no sense!\n")
     exit()
 
 # start the timer and initialize the Chains instance
@@ -130,8 +129,8 @@ for i in range(nSteps):
             timeString = '%.1fs' % remaining
         else:
             '%.0fmin' % (remaining // 60,)
-        print '   step %d/%d: %.1fs, %s remaining' % (
-            i_, nSteps, t - t0, timeString) + betaText
+        print('   step %d/%d: %.1fs, %s remaining'
+              % (i_, nSteps, t - t0, timeString) + betaText)
         chains.dump(append=True)
 
 # fix a nice vmd file for this simulation
@@ -150,9 +149,9 @@ if t - t0 < 300:
     timeText = '%.1fs' % (t - t0)
 else:
     timeText = '%.0fmin' % ((t - t0) / 60)
-print '\nSimulation done in ' + timeText
-print 'Trajectory written to %s.pdb' % outputFile
+print('\nSimulation done in ' + timeText)
+print('Trajectory written to %s.pdb' % outputFile)
 print('Visualization state saved as %s.vmd, do "vmd -e %s.vmd" to look'
       % ((outputFile,) * 2))
 if nSteps > 0:
-    print 'Acceptance rate: %.1f%%' % (100 * float(goodSteps) / nSteps)
+    print('Acceptance rate: %.1f%%' % (100 * float(goodSteps) / nSteps))
