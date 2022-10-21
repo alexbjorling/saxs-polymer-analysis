@@ -23,7 +23,7 @@ class Chains(object):
             self.beta = beta
             self.surface = surface
             self.outFile = outFile
-            bonds = np.nan
+            bonds = None
             # read the initial conformation from pdb
             if initialConf:
                 print("Reading initial conformation from the last frame of %s."
@@ -51,7 +51,7 @@ class Chains(object):
                 fp.close()
             # make a random one
             else:
-                while np.isnan(bonds):
+                while bonds is None:
                     sys.stdout.write(
                         "Generating initial arrangement of chains... ")
                     self.coords = []
@@ -61,7 +61,7 @@ class Chains(object):
                         self.coords[-1][:, 1] = np.random.rand() * box
                         self.coords[-1][:, 2] = np.arange(.5, length)
                     bonds = self.check()
-                    if np.isnan(bonds):
+                    if bonds is None:
                         sys.stdout.write('failed. Trying again.\n')
                     else:
                         sys.stdout.write('success!\n')
@@ -104,9 +104,11 @@ class Chains(object):
 
     def check(self):
         bonds = 0
+        angles = []
         # got to loop over chains first, beads i and i+1 should interact
         # fully if they are on different chains...
         for m in range(self.number):
+            angles_ = []
             # check for angle violation on the current chain:
             for i in range(1, self.length - 1):
                 a = self.coords[m][i + 1, :] - self.coords[m][i, :]
@@ -114,16 +116,17 @@ class Chains(object):
                 angle = np.arccos(min(1, np.dot(a, b) / (np.linalg.norm(a)
                                   * np.linalg.norm(b))))
                 if angle > self.maxAngle:
-                    return np.nan
+                    return (None, None)
+                angles_.append(angle)
             # check for overlap and surface violation on the current chain:
             for i in range(self.length):
                 ri = self.coords[m][i]
                 if self.surface and (i > 0) and (ri[2] < 0.5):
-                    return np.nan
+                    return (None, None)
                 for j in range(i - 1):
                     rj = self.coords[m][j]
                     if np.linalg.norm(ri - rj) < 1.0:
-                        return np.nan
+                        return (None, None)
                     # count bonds
                     if np.linalg.norm(ri - rj) < 1.2:
                         bonds += 1
@@ -135,11 +138,12 @@ class Chains(object):
                     for j in range(self.length):
                         rj = self.coords[n][j]
                         if np.linalg.norm(ri - rj) < 1.0:
-                            return np.nan
+                            return (None, None)
                         # count bonds
                         if np.linalg.norm(ri - rj) < 1.2:
                             bonds += 1
-        return bonds
+            angles.append(angles_)
+        return bonds, np.array(angles)
 
     def dump(self, append=False):
         fp = open(self.outFile, {True: 'a', False: 'w'}[append])

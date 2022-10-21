@@ -81,6 +81,9 @@ for s in sys.argv:
     fp.write(s + ' ')
 fp.write('\n')
 fp.close()
+fp = open(outputFile + '.traj', 'w')
+fp.write('Iteration\tBonds\tAverage angle')
+fp.close()
 if not append:
     try:
         os.remove(outputFile + '.pdb')
@@ -93,8 +96,7 @@ goodSteps, badSteps, oldBonds = 0, 0, 0
 for i in range(nSteps):
     # Perturb and check new structure:
     chains.randomRotation(1)
-    bonds = chains.check()
-    deltaBonds = oldBonds - bonds
+    bonds, angles = chains.check()
     # Find time-dependent beta for simulated annealing:
     if ramps == 0:
         beta_ = chains.beta
@@ -103,9 +105,9 @@ for i in range(nSteps):
         if not (2 * i / (nSteps / (ramps))) % 2:
             beta_ = chains.beta * (2 * i % (nSteps / ramps)) / (nSteps / ramps)
     # Metropolis condition:
-    if np.isnan(bonds):
+    if bonds is None:
         keep = False
-    elif (deltaBonds <= 0) or (np.random.rand() < np.exp(-beta_ * deltaBonds)):
+    elif (oldBonds - bonds <= 0) or (np.random.rand() < np.exp(-beta_ * oldBonds - bonds)):
         keep = True
     else:
         keep = False
@@ -131,7 +133,10 @@ for i in range(nSteps):
             timeString = '%.0fmin' % (remaining // 60,)
         print('   step %d/%d: %.1fs, %s remaining'
               % (i_, nSteps, t - t0, timeString) + betaText)
+    if keep and (goodSteps % outputFreq == 0):
         chains.dump(append=True)
+        with open(outputFile + '.traj', 'a') as fp:
+            fp.write('%u\t%u\t%f\n' % (goodSteps, bonds, np.mean(angles)))
 
 # fix a nice vmd file for this simulation
 fout = open(outputFile + '.vmd', 'w')
