@@ -34,6 +34,12 @@ def usage():
         '                    (default: 10)\n'
         '  -steps <n>:       runs a simulation of n steps, including steps\n'
         '                    where the change is rejected (default 1000)\n'
+        '  -debye            if present, calculates Debye sum on every\n'
+        '                    output\n'
+        '  -debye_max <max>  maximum q value for Debye calculation\n'
+        '  -debye_n <n>      number of q values for Debye calculation\n'
+        '  -debye_dist <d>   scaling factor for coordinates used for Debye\n'
+        '                    (does not affect output coordinates\n (default 1)'
         '  -append:          if present, continues the existing simulation\n'
         '                    specified by -outputFile, which must match the\n'
         '                    other settings (default no)\n'
@@ -63,6 +69,10 @@ ramps = int(parse(sys.argv, '-ramps', 0))
 outputFile = parse(sys.argv, '-outputFile', 'out')
 outputFreq = int(parse(sys.argv, '-outputFreq', 10))
 nSteps = int(parse(sys.argv, '-steps', 1000))
+debye = '-debye' in sys.argv
+debye_max = float(parse(sys.argv, '-debye_max', .5))
+debye_dist = float(parse(sys.argv, '-debye_dist', 1.))
+debye_n = int(parse(sys.argv, '-debye_n', 51))
 if (number > 1) and not surface:
     print("Simulating more than one chain without a surface makes no sense!\n")
     exit()
@@ -93,6 +103,9 @@ if not append:
 
 # do the simulation
 goodSteps, badSteps, oldBonds = 0, 0, 0
+if debye:
+    q = np.linspace(0, debye_max, debye_n) * debye_dist
+    Idebye = []
 for i in range(nSteps):
     # Perturb and check new structure:
     chains.randomRotation(1)
@@ -137,6 +150,11 @@ for i in range(nSteps):
         chains.dump(append=True)
         with open(outputFile + '.traj', 'a') as fp:
             fp.write('%u\t%u\t%f\n' % (goodSteps, bonds, np.mean(angles)))
+        if debye:
+            Idebye.append(chains.debye(q))
+
+if debye:
+    np.savez(outputFile + '.npz', q=q, I=np.array(Idebye))
 
 # fix a nice vmd file for this simulation
 fout = open(outputFile + '.vmd', 'w')

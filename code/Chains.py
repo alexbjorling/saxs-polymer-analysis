@@ -145,6 +145,17 @@ class Chains(object):
             angles.append(angles_)
         return bonds, np.array(angles)
 
+    def debye(self, q):
+        res = np.zeros_like(q)
+        coords = np.array(self.coords).reshape((-1, 3))
+        for i in range(coords.shape[0]):
+            res[:] = res[:] + 1
+            for j in range(i):
+                r = np.linalg.norm(coords[i] - coords[j])
+                res[0] += 2
+                res[1:] = res[1:] + 2 * np.sin(q[1:] * r) / (q[1:] * r)
+        return res / res[0]
+
     def dump(self, append=False):
         fp = open(self.outFile, {True: 'a', False: 'w'}[append])
         fp.write('MODEL \n')
