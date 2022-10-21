@@ -120,7 +120,8 @@ for i in range(nSteps):
     # Metropolis condition:
     if bonds is None:
         keep = False
-    elif (oldBonds - bonds <= 0) or (np.random.rand() < np.exp(-beta_ * oldBonds - bonds)):
+    elif ((oldBonds - bonds <= 0)
+          or (np.random.rand() < np.exp(-beta_ * (oldBonds - bonds)))):
         keep = True
     else:
         keep = False
