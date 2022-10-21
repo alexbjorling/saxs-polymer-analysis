@@ -128,7 +128,7 @@ for i in range(nSteps):
         if remaining < 300:
             timeString = '%.1fs' % remaining
         else:
-            '%.0fmin' % (remaining // 60,)
+            timeString = '%.0fmin' % (remaining // 60,)
         print('   step %d/%d: %.1fs, %s remaining'
               % (i_, nSteps, t - t0, timeString) + betaText)
         chains.dump(append=True)
