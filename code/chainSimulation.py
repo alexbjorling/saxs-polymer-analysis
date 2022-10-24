@@ -24,6 +24,8 @@ def usage():
         '                    where a = 0.0 is a straight rod (default 90.0)\n'
         '  -beta <b>:        the effective bond strength b = energy / (kT),\n'
         '                    where the well width is 0.2 (default 0.0)\n'
+        '  -stepsize <s>     number between 0 and 1 for the size of random\n'
+        '                    rotation steps (default 1)\n'
         '  -ramps <n>:       ramp up beta from 0 n times for simulated\n'
         '                    annealing, where n = 0 gives constant beta as\n'
         '                    specified by -beta. After each ramp, beta is\n'
@@ -65,6 +67,7 @@ length = int(parse(sys.argv, '-length', 50))
 box = float(parse(sys.argv, '-box', 10))
 maxAngle = float(parse(sys.argv, '-maxAngle', 90)) * np.pi / 180.0
 beta = float(parse(sys.argv, '-beta', 0))
+stepsize = float(parse(sys.argv, '-stepsize', 1.))
 ramps = int(parse(sys.argv, '-ramps', 0))
 outputFile = parse(sys.argv, '-outputFile', 'out')
 outputFreq = int(parse(sys.argv, '-outputFreq', 10))
@@ -104,11 +107,11 @@ if not append:
 # do the simulation
 goodSteps, badSteps, oldBonds = 0, 0, 0
 if debye:
-    q = np.linspace(0, debye_max, debye_n) * debye_dist
+    q = np.linspace(0, debye_max, debye_n)
     Idebye = []
 for i in range(nSteps):
     # Perturb and check new structure:
-    chains.randomRotation(1)
+    chains.randomRotation(1, stepsize)
     bonds, angles = chains.check()
     # Find time-dependent beta for simulated annealing:
     if ramps == 0:
@@ -152,7 +155,7 @@ for i in range(nSteps):
         with open(outputFile + '.traj', 'a') as fp:
             fp.write('%u\t%u\t%f\n' % (goodSteps, bonds, np.mean(angles)))
         if debye:
-            Idebye.append(chains.debye(q))
+            Idebye.append(chains.debye(q * debye_dist))
 
 if debye:
     np.savez(outputFile + '.npz', q=q, I=np.array(Idebye))

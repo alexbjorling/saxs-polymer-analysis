@@ -66,13 +66,13 @@ class Chains(object):
                     else:
                         sys.stdout.write('success!\n')
 
-    def randomRotation(self, number=1):
+    def randomRotation(self, number=1, size=1):
         for cycle in range(number):
             m = np.random.randint(self.number)
             n = np.random.randint(self.length - 1)
             # set the random angle to the same value as the maximum
             # allowed angle - should be the right sort of size:
-            thetaMax = self.maxAngle
+            thetaMax = self.maxAngle * size
             tX = (1 - 2 * np.random.rand()) * thetaMax * (1 + self.surface)
             tY = (1 - 2 * np.random.rand()) * thetaMax * (1 + self.surface)
             tZ = (1 - 2 * np.random.rand()) * thetaMax * (1 + self.surface)
