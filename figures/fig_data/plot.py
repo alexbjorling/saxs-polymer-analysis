@@ -48,11 +48,11 @@ ax[0].set_yscale('log')
 ax[0].set_xscale('log')
 ax[0].set_ylim([.02, 2e3])
 ax[0].set_xlabel('$q = 4\\pi/\\lambda$ $\\sin\\theta$  [1/Å]').set_x(1)
-ax[0].set_ylabel('Concentration-corrected\nintensity  [$cm^2 / g$]')
+ax[0].set_ylabel('$I / c$  [$\mathrm{cm}^2 / \mathrm{g}$]')
 xl = ax[0].get_xlim()
 # ax[0].text(xl[0] * 1.3, 6e2, 'A', weight='bold', ha='left')
 # ax[1].text(xl[1] / 1.3, 6e2, 'B', weight='bold', ha='right')
-plt.subplots_adjust(wspace=.07, bottom=.2, top=.99, left=.15, right=.99)
+plt.subplots_adjust(wspace=.05, bottom=.2, top=.99, left=.12, right=.99)
 
 # make ideal lines
 x = np.array([.01, .08])
