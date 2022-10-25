@@ -1,0 +1,5 @@
+for i in {1..20}
+do
+    echo "*** TRAJECTORY $i ***"
+    python ../../../code/chainSimulation.py -length 40 -maxAngle 90 -beta 1.1 -steps 200000 -debye -debye_n 501 -debye_max .5 -debye_dist 50 -stepsize .05 -outputFreq 100 -outputFile out$i &
+done
