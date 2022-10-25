@@ -161,15 +161,14 @@ if debye:
     np.savez(outputFile + '.npz', q=q, I=np.array(Idebye))
 
 # fix a nice vmd file for this simulation
-fout = open(outputFile + '.vmd', 'w')
-
-fin = open(os.path.dirname(os.path.realpath(__file__)) + '/base.vmd', 'r')
-for line in fin:
-    fout.write(line.replace('_FILENAME_', outputFile + '.pdb'))
-if not surface:
-    fout.write('\nsource align_traj.tcl \nalign_traj_on_itself 0 "all" 0\n')
-fout.close()
-fin.close()
+with open(outputFile + '.vmd', 'w') as fout:
+    abspath = os.path.dirname(os.path.realpath(__file__))
+    with open(abspath + '/base.vmd', 'r') as fin:
+        for line in fin:
+            fout.write(line.replace('_FILENAME_', outputFile + '.pdb'))
+        if not surface:
+            fout.write('\nsource %s/align_traj.tcl \nalign_traj_on_itself '
+                       '0 "all" 0\n' % abspath)
 
 t = time.time()
 if t - t0 < 300:
