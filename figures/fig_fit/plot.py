@@ -25,8 +25,8 @@ plt.subplots_adjust(
     )
 
 samples = [
-#    {'name': 'fimbriae_A', 'conc': 7.14e-3, 'color': 'royalblue',
-#     'scale': 1.15, 'num': 221, 'sub': 6e-2, 'start': 10000},
+    {'name': 'fimbriae_A', 'conc': 7.14e-3, 'color': 'royalblue',
+     'scale': 1.15, 'num': 221, 'sub': 6e-2, 'start': 20000},
     {'name': 'fimbriae_AB', 'conc': 12.2e-3, 'color': 'darkorange',
      'scale': .60, 'num': 226, 'sub': 1.5e-2, 'start': 20000}
 ]
@@ -78,6 +78,7 @@ for i, sample in enumerate(samples):
     ax_width = (1 - LEFT - WSPACE - (1 - RIGHT)) / 2
     pos = .01 + LEFT + (ax_width + WSPACE - .01) * i
     a2 = fig.add_axes(rect=[pos, .23, .2, .3])
+    a2.set_xlim((0, 50000))
     for j in range(len(runs)):
         a2.plot(steps[j], angles[j] / np.pi * 180, 'k', lw=.1)
 
@@ -97,3 +98,5 @@ for i, sample in enumerate(samples):
 ax[0].set_xlabel('$q = 4\\pi/\\lambda$ $\\sin\\theta$  [1/Å]').set_x(1.)
 ax[0].set_ylabel('$I / c$  [$\mathrm{cm}^2 / \mathrm{g}$]')
 ax[1].set_yticklabels([])
+
+plt.savefig('fig_fit.pdf')
