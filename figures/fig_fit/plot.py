@@ -26,9 +26,11 @@ plt.subplots_adjust(
 
 samples = [
     {'name': 'fimbriae_A', 'conc': 7.14e-3, 'color': 'royalblue',
-     'scale': 1.15, 'num': 221, 'sub': 6e-2, 'start': 20000},
+     'scale': 1.15, 'num': 221, 'sub': 6e-2, 'start': 20000,
+     'd': 5.0},
     {'name': 'fimbriae_AB', 'conc': 12.2e-3, 'color': 'darkorange',
-     'scale': .60, 'num': 226, 'sub': 1.5e-2, 'start': 20000}
+     'scale': .60, 'num': 226, 'sub': 1.5e-2, 'start': 20000,
+     'd': 5.5}
 ]
 
 for i, sample in enumerate(samples):
@@ -80,12 +82,11 @@ for i, sample in enumerate(samples):
     a2 = fig.add_axes(rect=[pos, .23, .2, .3])
     a2.set_xlim((0, 50000))
     for j in range(len(runs)):
-        a2.plot(steps[j], angles[j] / np.pi * 180, 'k', lw=.1)
+        a2.plot(steps[j], angles[j] / np.pi * 180, color=[.35, .35, .35], lw=.1)
 
     a2.xaxis.tick_top()
     a2.xaxis.set_label_position('top')
     a2.xaxis.set_tick_params(labelsize=8, pad=0)
-    #a2.set_xlim((0, 50000))
     a2.axvline(sample['start'], linestyle='--', color='k', lw=.5)
     a2.set_xlabel('Monte Carlo step', fontsize=8, labelpad=2, ha='left').set_x(0)
 
@@ -94,6 +95,32 @@ for i, sample in enumerate(samples):
     a2.yaxis.set_tick_params(labelsize=8, pad=0)
     a2.set_ylim((0, 70))
     a2.set_ylabel('Av. angle ($^\circ$)', fontsize=8, labelpad=1, ha='left').set_y(0)
+
+    # cartoon inset
+    ax_width = (1 - LEFT - WSPACE - (1 - RIGHT)) / 2
+    pos = .22 + .01 + LEFT + (ax_width + WSPACE - .01) * i
+    a2 = fig.add_axes(rect=[pos, .4, .25, .55])
+
+    # read image and convert white to transparent
+    im = plt.imread(sample['name'] + '/render.png')[300:640, 300:500]
+    im = np.pad(im, ((0, 0), (0, 0), (0, 1)), constant_values=1)
+    white = np.where(im.sum(axis=-1) > 2.999)
+    im[white[0], white[1], -1] = 0
+    a2.imshow(im)
+    a2.axis('off')
+
+    # scalebar
+    # the whole chain is 597 pixels - manually measured on the rendering!
+    chain_length_pix = 597
+    # the whole chain is this long
+    chain_length_nm = 39 * sample['d']
+    pix_per_nm = chain_length_pix / chain_length_nm
+    scalebar_nm = 20
+    scalebar_pix = scalebar_nm * pix_per_nm
+    off = i * 7
+    a2.plot([80 - off, 80 - off + scalebar_pix], [20, 20], 'k', lw=4)
+    a2.text(80 - off + scalebar_pix / 2, 10, '%u nm' % scalebar_nm,
+            fontsize=8, ha='center', va='bottom')
 
 ax[0].set_xlabel('$q = 4\\pi/\\lambda$ $\\sin\\theta$  [1/Å]').set_x(1.)
 ax[0].set_ylabel('$I / c$  [$\mathrm{cm}^2 / \mathrm{g}$]')
