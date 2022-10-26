@@ -10,10 +10,12 @@ import sys
 
 class Chains(object):
     def __init__(self, number=0, length=0, box=0, maxAngle=np.pi / 2,
-                 beta=0.0, surface=False, outFile='out.pdb', initialConf=None):
+                 beta=0.0, surface=False, outFile='out.pdb', initialConf=None,
+                 grid=None):
         """
         Make and initialize a set of <number> chains of length <length>,
-        spread randomly over a square surface of side <box>.
+        spread over a square surface of side <box>, MxN if <grid> is
+        specified, otherwise randomly.
         """
         if number > 0:
             self.number = number
@@ -55,10 +57,22 @@ class Chains(object):
                     sys.stdout.write(
                         "Generating initial arrangement of chains... ")
                     self.coords = []
+                    if grid:
+                        assert grid[0] * grid[1] >= number
+                        dx = box / (grid[0] + 1)
+                        x = np.linspace(0, 1, grid[0] + 1)[:-1] * box + dx / 2
+                        dy = box / (grid[1] + 1)
+                        y = np.linspace(0, 1, grid[1] + 1)[:-1] * box + dy / 2
+                        X, Y = np.meshgrid(x, y)
+                        X = X.flatten()
+                        Y = Y.flatten()
+                    else:
+                        X = np.random.rand(number) * box
+                        Y = np.random.rand(number) * box
                     for i in range(number):
                         self.coords.append(np.ones((length, 3)))
-                        self.coords[-1][:, 0] = np.random.rand() * box
-                        self.coords[-1][:, 1] = np.random.rand() * box
+                        self.coords[-1][:, 0] = X[i]
+                        self.coords[-1][:, 1] = Y[i]
                         self.coords[-1][:, 2] = np.arange(.5, length)
                     bonds, angles = self.check()
                     if bonds is None:
@@ -118,11 +132,14 @@ class Chains(object):
                 if angle > self.maxAngle:
                     return (None, None)
                 angles_.append(angle)
-            # check for overlap and surface violation on the current chain:
+            # check for overlap and surface/box violation on the current chain:
             for i in range(self.length):
                 ri = self.coords[m][i]
                 if self.surface and (i > 0) and (ri[2] < 0.5):
                     return (None, None)
+                if self.box:
+                    if ((ri[0] < 0) or (ri[0] > self.box) or (ri[1] < 0) or (ri[1] > self.box)):
+                        return (None, None)
                 for j in range(i - 1):
                     rj = self.coords[m][j]
                     if np.linalg.norm(ri - rj) < 1.0:

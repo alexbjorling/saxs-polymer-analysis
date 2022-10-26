@@ -16,6 +16,8 @@ def usage():
         '  -surface:         if present, simulates the chains grafted on a\n'
         '                    hard but inert surface (default no)\n'
         '  -number <n>:      simulates a collection of n chains (default 1)\n'
+        '                    can also be "MxN" which will lay out a grid of\n'
+        '                    chains on a surface, if one is used'
         '  -length <n>:      makes coils of n beads, with contour lengths\n'
         '                    n - 1 (default 50)\n'
         '  -box <d>:         grafts the chains on a square of side length d\n'
@@ -62,7 +64,13 @@ if '-help' in sys.argv:
     usage()
 surface = '-surface' in sys.argv
 append = '-append' in sys.argv
-number = int(parse(sys.argv, '-number', 1))
+number = parse(sys.argv, '-number', 1)
+if 'x' in number:
+    grid = list(map(int, number.split('x')))
+    number = grid[0] * grid[1]
+else:
+    grid = None
+    number = int(number)
 length = int(parse(sys.argv, '-length', 50))
 box = float(parse(sys.argv, '-box', 10))
 maxAngle = float(parse(sys.argv, '-maxAngle', 90)) * np.pi / 180.0
@@ -86,6 +94,7 @@ initialConf = {False: None, True: outputFile + '.pdb'}[append]
 chains = Chains.Chains(
     number=number, length=length, box=box, maxAngle=maxAngle, beta=beta,
     surface=surface, outFile=outputFile + '.pdb', initialConf=initialConf,
+    grid=grid,
 )
 
 # set up the output
