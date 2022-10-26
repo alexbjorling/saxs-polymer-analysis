@@ -60,7 +60,7 @@ class Chains(object):
                         self.coords[-1][:, 0] = np.random.rand() * box
                         self.coords[-1][:, 1] = np.random.rand() * box
                         self.coords[-1][:, 2] = np.arange(.5, length)
-                    bonds = self.check()
+                    bonds, angles = self.check()
                     if bonds is None:
                         sys.stdout.write('failed. Trying again.\n')
                     else:
