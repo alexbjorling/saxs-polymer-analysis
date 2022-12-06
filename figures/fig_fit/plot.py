@@ -25,10 +25,10 @@ plt.subplots_adjust(
     )
 
 samples = [
-    {'name': 'fimbriae_A', 'conc': 7.14e-3, 'color': 'royalblue',
+    {'name': 'fimbriae_A', 'conc': 7.14e-3, 'color': 'dodgerblue',
      'scale': 1.15, 'num': 221, 'sub': 6e-2, 'start': 20000,
      'd': 5.0},
-    {'name': 'fimbriae_AB', 'conc': 12.2e-3, 'color': 'darkorange',
+    {'name': 'fimbriae_AB', 'conc': 12.2e-3, 'color': 'orange',
      'scale': .60, 'num': 226, 'sub': 1.5e-2, 'start': 20000,
      'd': 5.5}
 ]
@@ -60,10 +60,7 @@ for i, sample in enumerate(samples):
     data = np.loadtxt(pattern % sample['num'], skiprows=3)[:, :-2]
     data[:, 1] /= sample['conc']
     data[:, 1] -= sample['sub']
-    q_sparse = np.logspace(np.log10(data[0,0]), np.log10(data[-1, 0]), 25)
-    ax[i].plot(q_sparse,
-               np.interp(q_sparse, data[:, 0], data[:, 1]), 'o',
-               color=sample['color'], ms=4)
+    ax[i].plot(data[:, 0], data[:, 1], '.', ms=7, color=sample['color'])
 
     # Model in absolute units
     drho = 2e10  # cm/g
